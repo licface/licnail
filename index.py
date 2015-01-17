@@ -5,11 +5,6 @@ import imp
 import config
 from system.core.core_controller import Controller
 
-#APP_NAME = "cgix"
-
-#print "page name =", os.path.basename(__file__)
-#imp.load_source(APP_NAME, os.path.dirname(__file__))
-
 class index(Controller):
 	def __init__(self):
 		pass
@@ -25,6 +20,13 @@ class index(Controller):
 			return index_sub_class.index()
 	def __str__(self):
 		return self.index()
+
+print "SCRIPT NAME =", os.environ['SCRIPT_NAME']
+print "<br>"
+print "PATH INFO =", os.environ['PATH_INFO']
+print "<br>"
+print "QUERY STRING =", os.environ['QUERY_STRING']
+print "<br>"
 
 c = index()
 c.index()

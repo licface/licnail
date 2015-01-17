@@ -26,10 +26,12 @@ __all__ = ["CGIHTTPRequestHandler"]
 import os
 import sys
 import urllib
-import BaseHTTPServer
-import SimpleHTTPServer
+from system.library import BaseHTTPServer
+from system.library import SimpleHTTPServer
 import select
 import copy
+
+main_collapsed_path = None
 
 
 class CGIHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
@@ -140,25 +142,50 @@ class CGIHTTPRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             scriptname = dir + '/' + "index.py"
             scriptfile = self.translate_path(scriptname)
             if not os.path.exists(scriptfile):
-                self.send_error(404, "No such CGI script (%r)" % scriptname)
-                return
+                #self.send_error(404, "No such CGI script (%r)" % scriptname)
+                if main_collapsed_path == None:
+                    self.send_error(404, "No such CGI script (%r)" % scriptname)
+                    return
+                else:
+                    os.environ.update({'main_collapsed_path': main_collapsed_path})
+                    print "main_collapsed_path 1 =", main_collapsed_path
+                    self.send_error(404, "No such CGI script (%r)" % scriptname)
+                    return main_collapsed_path                    
         if not os.path.isfile(scriptfile):
             scriptname = dir + '/' + "index.py"
             scriptfile = self.translate_path(scriptname)
             if not os.path.isfile(scriptfile):
-                self.send_error(403, "CGI script is not a plain file (%r)" %
-                            scriptname)
-                return
+                #self.send_error(403, "CGI script is not a plain file (%r)" % scriptname)
+                if main_collapsed_path == None:
+                    self.send_error(403, "CGI script is not a plain file (%r)" % scriptname)
+                    return
+                else:
+                    os.environ.update({'main_collapsed_path': main_collapsed_path})
+                    print "main_collapsed_path 2 =", main_collapsed_path
+                    self.send_error(403, "CGI script is not a plain file (%r)" % scriptname)
+                    return main_collapsed_path
         ispy = self.is_python(scriptname)
         if not ispy:
             if not (self.have_fork or self.have_popen2 or self.have_popen3):
-                self.send_error(403, "CGI script is not a Python script (%r)" %
-                                scriptname)
-                return
+                #self.send_error(403, "CGI script is not a Python script (%r)" % scriptname)
+                if main_collapsed_path == None:
+                    self.send_error(403, "CGI script is not a Python script (%r)" % scriptname)
+                    return
+                else:
+                    os.environ.update({'main_collapsed_path': main_collapsed_path})
+                    print "main_collapsed_path 3 =", main_collapsed_path
+                    self.send_error(403, "CGI script is not a Python script (%r)" % scriptname)
+                    return main_collapsed_path
             if not self.is_executable(scriptfile):
-                self.send_error(403, "CGI script is not executable (%r)" %
-                                scriptname)
-                return
+                #self.send_error(403, "CGI script is not executable (%r)" % scriptname)
+                if main_collapsed_path == None:
+                    self.send_error(403, "CGI script is not executable (%r)" % scriptname)
+                    return
+                else:
+                    os.environ.update({'main_collapsed_path': main_collapsed_path})
+                    print "main_collapsed_path 4 =", main_collapsed_path
+                    self.send_error(403, "CGI script is not executable (%r)" % scriptname)
+                    return main_collapsed_path
 
         # Reference: http://hoohoo.ncsa.uiuc.edu/cgi/env.html
         # XXX Much of the following could be prepared ahead of time!
@@ -343,7 +370,9 @@ def _url_collapse_path(path):
 
     splitpath = ('/' + '/'.join(head_parts), tail_part)
     collapsed_path = "/".join(splitpath)
-
+    print "collapsed_path XA =", collapsed_path
+    os.environ.update({'main_collapsed_path': collapsed_path})
+    main_collapsed_path = collapsed_path
     return collapsed_path
 
 
